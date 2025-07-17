@@ -23,30 +23,58 @@ jobs:
 
       - name: Generate Documentation
         run: |
-          ./gradlew dokkaGenerateModuleHtml --stacktrace || \
-          { 
-            echo "::error::Dokka generation failed!";
-            exit 1;
-          }
+          # Run documentation generation with debug output
+          ./gradlew dokkaGenerateModuleHtml --stacktrace --console=plain
+          echo "Dokka generation completed"
 
-      - name: Copy Documentation
+      - name: Debug Dokka Output
+        run: |
+          echo "Build directory structure:"
+          find build -type d
+          echo "Dokka files:"
+          find build -path '*/dokka*' -type f
+          echo "HTML files:"
+          find build -name '*.html'
+
+      - name: Create Documentation Placeholder
         run: |
           mkdir -p docs
-          # Try multiple possible output locations
-          cp -R build/dokka-module/html/module/* docs/ || \
-          cp -R build/dokka/html/* docs/ || \
-          cp -R build/dokka/* docs/ || \
-          { 
-            echo "::error::Documentation not found!";
-            find build -name 'dokka*' -print;
-            exit 1;
-          }
+          cat > docs/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Documentation Error</title>
+            <style>
+              body { font-family: sans-serif; margin: 40px; }
+              .container { max-width: 800px; margin: 0 auto; }
+              .error { color: #d32f2f; background: #ffebee; padding: 20px; border-radius: 4px; }
+              pre { background: #f5f5f5; padding: 15px; overflow-x: auto; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>Documentation Not Generated</h1>
+              <div class="error">
+                <p>Dokka failed to generate documentation. Possible causes:</p>
+                <ul>
+                  <li>No public classes/methods to document</li>
+                  <li>Incorrect Dokka configuration</li>
+                  <li>Missing source files</li>
+                </ul>
+                <p>Check workflow logs for details.</p>
+              </div>
+              <h2>Build Directory Structure</h2>
+              <pre>$(find build -type d | sed 's/[^/]*\//|   /g')</pre>
+              <h2>Available Dokka Tasks</h2>
+              <pre>$(./gradlew tasks --all | grep dokka || true)</pre>
+            </div>
+          </body>
+          </html>
+          EOF
           
           touch docs/.nojekyll
           echo "# Documentation" > docs/README.md
           echo "Automatically generated documentation: [View Docs](index.html)" >> docs/README.md
-          echo "Files copied to docs/:"
-          ls -R docs
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
