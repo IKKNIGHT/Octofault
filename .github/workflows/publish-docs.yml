@@ -1,25 +1,108 @@
-# Alternative approaches for the "Generate Documentation" step:
+name: Publish Documentation
 
-# Option 1: Try the module HTML generation
-- name: Generate Documentation (Module HTML)
-  run: |
-    ./gradlew dokkaGenerateModuleHtml --stacktrace --console=plain
-    echo "Dokka module HTML generation completed"
+on:
+  push:
+    branches: [main]
 
-# Option 2: Try the standard dokka task
-- name: Generate Documentation (Standard)
-  run: |
-    ./gradlew dokkaGenerate --stacktrace --console=plain
-    echo "Dokka generation completed"
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-# Option 3: Try Javadoc generation
-- name: Generate Documentation (Javadoc)
-  run: |
-    ./gradlew dokkaGeneratePublicationJavadoc --stacktrace --console=plain
-    echo "Dokka Javadoc generation completed"
+      - name: Setup JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
 
-# Option 4: Multiple formats
-- name: Generate Documentation (Multiple Formats)
-  run: |
-    ./gradlew dokkaGeneratePublicationHtml dokkaGeneratePublicationJavadoc --stacktrace --console=plain
-    echo "Dokka generation completed"
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Generate Documentation
+        run: |
+          # Generate HTML documentation
+          ./gradlew dokkaGeneratePublicationHtml --stacktrace --console=plain
+          echo "Dokka HTML generation completed"
+
+      - name: Debug Dokka Output
+        run: |
+          echo "Build directory structure:"
+          find build -type d | head -20
+          echo "Dokka files:"
+          find build -path '*/dokka*' -type f | head -20
+          echo "HTML files:"
+          find build -name '*.html' | head -20
+
+      - name: Prepare Documentation for GitHub Pages
+        run: |
+          # Create docs directory
+          mkdir -p docs
+          
+          # Find the generated Dokka HTML documentation
+          DOKKA_HTML_DIR=$(find build -name 'dokkaGeneratePublicationHtml' -type d | head -1)
+          
+          if [ -d "$DOKKA_HTML_DIR" ] && [ "$(ls -A $DOKKA_HTML_DIR)" ]; then
+            echo "Found Dokka HTML documentation at: $DOKKA_HTML_DIR"
+            # Copy all generated HTML documentation to docs folder
+            cp -r "$DOKKA_HTML_DIR"/* docs/
+            echo "Documentation copied successfully"
+          else
+            echo "Dokka HTML documentation not found, checking alternative locations..."
+          
+            # Check for other possible Dokka output locations
+            DOKKA_OUTPUT=$(find build -name '*.html' -path '*/dokka*' | head -1)
+          
+            if [ -n "$DOKKA_OUTPUT" ]; then
+              DOKKA_DIR=$(dirname "$DOKKA_OUTPUT")
+              echo "Found alternative Dokka output at: $DOKKA_DIR"
+              cp -r "$DOKKA_DIR"/* docs/
+            else
+              echo "No Dokka documentation found, creating error page..."
+              cat > docs/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Documentation Error</title>
+            <style>
+              body { font-family: sans-serif; margin: 40px; }
+              .container { max-width: 800px; margin: 0 auto; }
+              .error { color: #d32f2f; background: #ffebee; padding: 20px; border-radius: 4px; }
+              pre { background: #f5f5f5; padding: 15px; overflow-x: auto; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>Documentation Generation Failed</h1>
+              <div class="error">
+                <p>Dokka failed to generate documentation. Possible causes:</p>
+                <ul>
+                  <li>No public classes/methods to document</li>
+                  <li>Incorrect Dokka configuration</li>
+                  <li>Missing source files</li>
+                </ul>
+                <p>Check workflow logs for details.</p>
+              </div>
+            </div>
+          </body>
+          </html>
+          EOF
+            fi
+          fi
+          
+          # Create .nojekyll file to disable Jekyll processing
+          touch docs/.nojekyll
+          
+          # List final docs structure
+          echo "Final docs directory structure:"
+          find docs -type f | head -20
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          keep_files: false
+          force_orphan: true
