@@ -1,85 +1,25 @@
-name: Publish Documentation
+# Alternative approaches for the "Generate Documentation" step:
 
-on:
-  push:
-    branches: [main]
+# Option 1: Try the module HTML generation
+- name: Generate Documentation (Module HTML)
+  run: |
+    ./gradlew dokkaGenerateModuleHtml --stacktrace --console=plain
+    echo "Dokka module HTML generation completed"
 
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+# Option 2: Try the standard dokka task
+- name: Generate Documentation (Standard)
+  run: |
+    ./gradlew dokkaGenerate --stacktrace --console=plain
+    echo "Dokka generation completed"
 
-      - name: Setup JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'gradle'
+# Option 3: Try Javadoc generation
+- name: Generate Documentation (Javadoc)
+  run: |
+    ./gradlew dokkaGeneratePublicationJavadoc --stacktrace --console=plain
+    echo "Dokka Javadoc generation completed"
 
-      - name: Make gradlew executable
-        run: chmod +x gradlew
-
-      - name: Generate Documentation
-        run: |
-          # Run documentation generation with debug output
-          ./gradlew dokkaGeneratePublicationHtml --stacktrace --console=plain
-          echo "Dokka generation completed"
-
-      - name: Debug Dokka Output
-        run: |
-          echo "Build directory structure:"
-          find build -type d
-          echo "Dokka files:"
-          find build -path '*/dokka*' -type f
-          echo "HTML files:"
-          find build -name '*.html'
-
-      - name: Create Documentation Placeholder
-        run: |
-          mkdir -p docs
-          cat > docs/index.html << 'EOF'
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <title>Documentation Error</title>
-            <style>
-              body { font-family: sans-serif; margin: 40px; }
-              .container { max-width: 800px; margin: 0 auto; }
-              .error { color: #d32f2f; background: #ffebee; padding: 20px; border-radius: 4px; }
-              pre { background: #f5f5f5; padding: 15px; overflow-x: auto; }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <h1>Documentation Not Generated</h1>
-              <div class="error">
-                <p>Dokka failed to generate documentation. Possible causes:</p>
-                <ul>
-                  <li>No public classes/methods to document</li>
-                  <li>Incorrect Dokka configuration</li>
-                  <li>Missing source files</li>
-                </ul>
-                <p>Check workflow logs for details.</p>
-              </div>
-              <h2>Build Directory Structure</h2>
-              <pre>$(find build -type d | sed 's/[^/]*\//|   /g')</pre>
-              <h2>Available Dokka Tasks</h2>
-              <pre>$(./gradlew tasks --all | grep dokka || true)</pre>
-            </div>
-          </body>
-          </html>
-          EOF
-          
-          touch docs/.nojekyll
-          echo "# Documentation" > docs/README.md
-          echo "Automatically generated documentation: [View Docs](index.html)" >> docs/README.md
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
-          keep_files: false
-          force_orphan: true
+# Option 4: Multiple formats
+- name: Generate Documentation (Multiple Formats)
+  run: |
+    ./gradlew dokkaGeneratePublicationHtml dokkaGeneratePublicationJavadoc --stacktrace --console=plain
+    echo "Dokka generation completed"
