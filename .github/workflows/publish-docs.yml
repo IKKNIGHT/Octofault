@@ -3,7 +3,7 @@ name: Publish Javadoc Documentation
 on:
   push:
     branches: [main]
-  workflow_dispatch:  # Allow manual triggering
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -27,30 +27,24 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Generate Javadoc with Dokka
+      - name: Generate Javadoc
         run: |
-          echo "Available Dokka tasks:"
-          ./gradlew tasks --all | grep -i dokka || true
-          echo "Generating documentation for Java sources..."
+          echo "Generating standard Javadoc..."
+          ./gradlew javadoc --stacktrace --console=plain
           
-          # Try different Dokka tasks that work with Java
+          echo "Also trying Dokka for Java..."
           ./gradlew dokkaJavadoc --stacktrace --console=plain || true
           ./gradlew dokkaGeneratePublicationJavadoc --stacktrace --console=plain || true
-          
-          # Also try standard Gradle javadoc task as fallback
-          ./gradlew javadoc --stacktrace --console=plain || true
 
       - name: Find and prepare documentation
         run: |
           echo "Searching for generated documentation..."
           
-          # Common Dokka output locations for Java
+          # Standard Javadoc locations
           POSSIBLE_LOCATIONS=(
-            "build/dokka/javadoc"
-            "build/dokka/html"
             "build/docs/javadoc"
-            "build/documentation/javadoc"
             "build/javadoc"
+            "build/dokka/javadoc"
           )
           
           DOCS_FOUND=false
@@ -61,7 +55,7 @@ jobs:
               echo "Checking location: $location"
               ls -la "$location" || true
           
-              # Check if there are actual HTML files (not just config files)
+              # Check if there are actual HTML files
               HTML_COUNT=$(find "$location" -name "*.html" -type f | wc -l)
           
               if [ "$HTML_COUNT" -gt 0 ]; then
@@ -76,57 +70,63 @@ jobs:
           done
           
           if [ "$DOCS_FOUND" = false ]; then
-            echo "Searching for any HTML files in entire build directory..."
-            find build -name "*.html" -type f | head -10
-          
-            # Try to find any documentation directory with HTML files
-            DOC_DIR=$(find build -name "*.html" -type f | head -1 | xargs dirname 2>/dev/null)
-          
-            if [ -n "$DOC_DIR" ] && [ -d "$DOC_DIR" ]; then
-              echo "Found documentation directory with HTML: $DOC_DIR"
-              cp -r "$DOC_DIR"/* docs/
-              DOCS_FOUND=true
-            fi
-          fi
-          
-          if [ "$DOCS_FOUND" = false ]; then
             echo "No documentation found, creating placeholder..."
-            mkdir -p docs
             cat > docs/index.html << 'EOF'
           <!DOCTYPE html>
           <html>
           <head>
             <title>OctoFault Documentation</title>
             <style>
-              body { font-family: sans-serif; margin: 40px; background: #f5f5f5; }
+              body { font-family: Arial, sans-serif; margin: 40px; background: #f8f9fa; }
               .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-              .warning { color: #f57c00; background: #fff3e0; padding: 20px; border-radius: 4px; margin: 20px 0; }
-              .info { color: #1976d2; background: #e3f2fd; padding: 20px; border-radius: 4px; margin: 20px 0; }
-              pre { background: #f5f5f5; padding: 15px; overflow-x: auto; border-radius: 4px; }
-              h1 { color: #333; margin-top: 0; }
+              .warning { color: #856404; background: #fff3cd; padding: 20px; border-radius: 4px; margin: 20px 0; border: 1px solid #ffeaa7; }
+              .info { color: #0c5460; background: #d1ecf1; padding: 20px; border-radius: 4px; margin: 20px 0; border: 1px solid #bee5eb; }
+              pre { background: #f8f9fa; padding: 15px; overflow-x: auto; border-radius: 4px; border: 1px solid #e9ecef; }
+              h1 { color: #495057; margin-top: 0; }
+              code { background: #f8f9fa; padding: 2px 4px; border-radius: 3px; }
             </style>
           </head>
           <body>
             <div class="container">
               <h1>OctoFault Documentation</h1>
               <div class="warning">
-                <h3>Documentation Not Generated</h3>
-                <p>Dokka was unable to generate documentation. This usually means:</p>
+                <h3>⚠️ Documentation Not Generated</h3>
+                <p>Javadoc was unable to generate documentation. This usually means:</p>
                 <ul>
                   <li>No public classes or methods found to document</li>
-                  <li>Missing KDoc comments on public APIs</li>
-                  <li>Dokka configuration needs adjustment</li>
+                  <li>Missing Javadoc comments on public APIs</li>
+                  <li>Source files not found in expected location</li>
                 </ul>
               </div>
               <div class="info">
-                <h3>To fix this:</h3>
+                <h3>📋 To fix this:</h3>
                 <ol>
-                  <li>Add KDoc comments to your public classes and methods</li>
+                  <li>Add Javadoc comments to your public classes and methods in <code>src/main/java/com/ikknight/octofault/</code></li>
                   <li>Ensure your library has public APIs to document</li>
-                  <li>Check the GitHub Actions logs for specific errors</li>
+                  <li>Check that your Java files are in the correct directory structure</li>
+                  <li>Review the GitHub Actions logs for specific errors</li>
                 </ol>
+                <p><strong>Example Javadoc comment:</strong></p>
+                <pre>/**
+           * This class provides fault detection for FTC robots.
+           * 
+           * @author IKKNIGHT
+           * @since 1.0
+           */
+          public class OctoFault {
+              /**
+               * Initializes the fault detection system.
+               * 
+               * @param config the configuration to use
+               * @return true if successful, false otherwise
+               */
+              public boolean initialize(FaultConfig config) {
+                  // implementation
+              }
+          }</pre>
               </div>
               <p><strong>Repository:</strong> <a href="https://github.com/IKKNIGHT/Octofault">IKKNIGHT/Octofault</a></p>
+              <p><strong>Library:</strong> OctoFault - FTC Fault Detection Library</p>
             </div>
           </body>
           </html>
