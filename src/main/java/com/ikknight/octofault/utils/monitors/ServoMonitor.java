@@ -38,7 +38,8 @@ public class ServoMonitor extends DeviceMonitor<Servo> {
             reportFault(LoggingStream.LogLevel.ERROR, name + ": Position out of range (0.0–1.0), Or Servo position is unknown. (either undefined or the servo position is not set.)");
             errorsInThisUpdate = true;
         }
-        if (device instanceof ServoImplEx advancedServo) {
+        if (device instanceof ServoImplEx) {
+            ServoImplEx advancedServo = (ServoImplEx) device;
             try {
                 boolean pwm = advancedServo.isPwmEnabled();
                 if (!pwm) {
@@ -64,9 +65,16 @@ public class ServoMonitor extends DeviceMonitor<Servo> {
     @SuppressLint("DefaultLocale")
     @Override
     public Object getCurrentValue() {
+        boolean pwmEnabled;
+        if (device instanceof ServoImplEx) {
+            pwmEnabled = ((ServoImplEx) device).isPwmEnabled();
+        } else {
+            pwmEnabled = device.getController().getPwmStatus().equals(ServoController.PwmStatus.ENABLED);
+        }
+
         return String.format("Target Position: %.2f, PWM Enabled: %s",
                 device.getPosition(),
-                (device instanceof ServoImplEx ex) ? ex.isPwmEnabled() : device.getController().getPwmStatus().equals(ServoController.PwmStatus.ENABLED));
+                pwmEnabled);
     }
 
     @Override

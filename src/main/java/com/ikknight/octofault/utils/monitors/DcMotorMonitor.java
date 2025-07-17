@@ -43,7 +43,8 @@ public class DcMotorMonitor extends DeviceMonitor<DcMotorSimple> {
 
         long now = System.currentTimeMillis();
 
-        if (device instanceof DcMotorEx motorEx) {
+        if (device instanceof DcMotorEx) {
+            DcMotorEx motorEx = (DcMotorEx) device;
             int currentPosition = motorEx.getCurrentPosition();
             double velocity = motorEx.getVelocity();
 
@@ -62,20 +63,23 @@ public class DcMotorMonitor extends DeviceMonitor<DcMotorSimple> {
             lastTime = now;
         }
 
-        else if (device instanceof DcMotor motor) {
+        else if (device instanceof DcMotor) {
+            DcMotor motor = (DcMotor) device;
             if (motor.isBusy() && Math.abs(power) < 0.15) {
                 reportFault(LoggingStream.LogLevel.WARNING, name + ": Motor is busy but power is significantly low.");
                 errorsInThisUpdate = true;
             }
         }
 
-        else if (device instanceof CRServo servo) {
+        else if (device instanceof CRServo) {
+            CRServo servo = (CRServo) device;
             if (Math.abs(power) > 0.5) {
                 reportFault(LoggingStream.LogLevel.INFO, name + ": CRServo power high, but no encoder feedback available.");
                 errorsInThisUpdate = true;
             }
 
-            if (servo instanceof CRServoImplEx advancedServo) {
+            if (servo instanceof CRServoImplEx) {
+                CRServoImplEx advancedServo = (CRServoImplEx) servo;
                 try {
                     boolean pwm = advancedServo.isPwmEnabled();
                     if (!pwm) {
@@ -99,10 +103,12 @@ public class DcMotorMonitor extends DeviceMonitor<DcMotorSimple> {
     @SuppressLint("DefaultLocale")
     @Override
     public Object getCurrentValue() {
-        if (device instanceof DcMotorEx ex) {
+        if (device instanceof DcMotorEx) {
+            DcMotorEx ex = (DcMotorEx) device;
             return String.format("Power: %.2f, Pos: %d, Vel: %.2f",
                     ex.getPower(), ex.getCurrentPosition(), ex.getVelocity());
-        } else if (device instanceof DcMotor motor) {
+        } else if (device instanceof DcMotor) {
+            DcMotor motor = (DcMotor) device;
             return String.format("Power: %.2f, Pos: %d", motor.getPower(), motor.getCurrentPosition());
         } else {
             return "Power: " + device.getPower();

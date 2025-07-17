@@ -57,7 +57,8 @@ public class ColorSensorMonitor extends DeviceMonitor<ColorSensor> {
                 errorsInThisUpdate = true;
             }
 
-            if (device instanceof RevColorSensorV3 revSensor) {
+            if (device instanceof RevColorSensorV3) {
+                RevColorSensorV3 revSensor = (RevColorSensorV3) device;
                 I2cDeviceSynch client = (I2cDeviceSynch) ((I2cDeviceSynchDevice<?>) revSensor).getDeviceClient();
 
                 if (!client.isArmed()) {
