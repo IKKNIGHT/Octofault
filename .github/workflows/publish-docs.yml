@@ -23,36 +23,21 @@ jobs:
 
       - name: Generate Documentation
         run: |
-          # Try different Dokka tasks until one works
-          if ./gradlew dokkaGenerateModuleHTML; then
-            echo "Generated with dokkaGenerateModuleHTML"
-          elif ./gradlew dokkaGeneratePublicationHTML; then
-            echo "Generated with dokkaGeneratePublicationHTML"
-          elif ./gradlew dokkaGenerate; then
-            echo "Generated with dokkaGenerate"
-          else
-            echo "All Dokka tasks failed!"
-            exit 1
-          fi
+          # Generate docs using the module task
+          ./gradlew dokkaGenerateModuleHTML
 
       - name: Locate and Copy Documentation
         run: |
-          # Search for dokka output in common locations
-          if [ -d "build/dokka/html" ]; then
-            echo "Found HTML docs at build/dokka/html"
-            cp -R build/dokka/html/* docs/
-          elif [ -d "build/dokka" ]; then
-            echo "Found docs at build/dokka"
-            cp -R build/dokka/* docs/
-          elif [ -d "build/reports/dokka" ]; then
-            echo "Found docs at build/reports/dokka"
-            cp -R build/reports/dokka/* docs/
-          elif [ -d "build/docs/dokka" ]; then
-            echo "Found docs at build/docs/dokka"
-            cp -R build/docs/dokka/* docs/
+          # Specific path found in your error log
+          DOCS_PATH="build/dokka-module/html/module"
+          
+          if [ -d "$DOCS_PATH" ]; then
+            echo "Found documentation at: $DOCS_PATH"
+            mkdir -p docs
+            cp -R "$DOCS_PATH"/* docs/
           else
-            echo "Could not find Dokka output! Directory listing:"
-            ls -R build
+            echo "Documentation not found! Directory structure:"
+            find build -type d
             exit 1
           fi
           
@@ -67,8 +52,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
           keep_files: false
-          force_orphan: true  # Keep only latest deployment
-
-      - name: Verify Deployment
-        run: |
-          echo "Documentation deployed to: https://${{ github.repository_owner }}.github.io/${GITHUB_REPOSITORY#*/}/"
+          force_orphan: true
