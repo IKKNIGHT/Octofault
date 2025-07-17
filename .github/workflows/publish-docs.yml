@@ -32,24 +32,23 @@ jobs:
           # Configure Dokka if missing
           if ! grep -q "dokkaHtml" build.gradle.kts; then
             echo "Adding Dokka configuration to build.gradle.kts"
-            cat << 'EOF' >> build.gradle.kts
-          
-            tasks.dokkaHtml.configure {
-                outputDirectory.set(file("\$buildDir/dokka"))
-                moduleName.set("Octofault")
-                dokkaSourceSets {
-                    named("main") {
-                        includes.from("src/main/kotlin")
-                        jdkVersion.set(17)
-                        sourceLink {
-                            localDirectory.set(file("src/main/kotlin"))
-                            remoteUrl.set(uri("https://github.com/IKKNIGHT/Octofault/tree/main/src/main/kotlin").toURL())
-                            remoteLineSuffix.set("#L")
-                        }
-                    }
-                }
-            }
-            EOF
+            # Append configuration line by line
+            echo "" >> build.gradle.kts
+            echo "tasks.dokkaHtml.configure {" >> build.gradle.kts
+            echo "    outputDirectory.set(file(\"\$buildDir/dokka\"))" >> build.gradle.kts
+            echo "    moduleName.set(\"Octofault\")" >> build.gradle.kts
+            echo "    dokkaSourceSets {" >> build.gradle.kts
+            echo "        named(\"main\") {" >> build.gradle.kts
+            echo "            includes.from(\"src/main/kotlin\")" >> build.gradle.kts
+            echo "            jdkVersion.set(17)" >> build.gradle.kts
+            echo "            sourceLink {" >> build.gradle.kts
+            echo "                localDirectory.set(file(\"src/main/kotlin\"))" >> build.gradle.kts
+            echo "                remoteUrl.set(uri(\"https://github.com/IKKNIGHT/Octofault/tree/main/src/main/kotlin\").toURL())" >> build.gradle.kts
+            echo "                remoteLineSuffix.set(\"#L\")" >> build.gradle.kts
+            echo "            }" >> build.gradle.kts
+            echo "        }" >> build.gradle.kts
+            echo "    }" >> build.gradle.kts
+            echo "}" >> build.gradle.kts
           fi
 
       - name: Generate Documentation
