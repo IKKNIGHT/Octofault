@@ -5,17 +5,29 @@ plugins {
 }
 
 // TODO: modify
-android.namespace = "com.example.library"
+android.namespace = "com.ikknight.octofault"
 
 // Most FTC libraries will want the following
 ftc {
-	kotlin // if you don't want to use kotlin, remove this
 
 	sdk {
 		RobotCore
 		FtcCommon {
 			configurationNames += "testImplementation"
 		}
+
+	}
+}
+
+dependencies {
+	compileOnly("com.acmerobotics.slothboard:dashboard:0.2.3+0.4.16")
+	compileOnly("dev.frozenmilk.sinister:Sloth:0.2.3")
+}
+
+repositories {
+	maven {
+		name = "dairyReleases"
+		url = uri("https://repo.dairy.foundation/releases")
 	}
 }
 
@@ -23,9 +35,9 @@ publishing {
 	publications {
 		register<MavenPublication>("release") {
 			// TODO: modify
-			groupId = "com.example"
+			groupId = "com.ikknight"
 			// TODO: modify
-			artifactId = "Library"
+			artifactId = "octofault"
 
 			artifact(dairyDoc.dokkaHtmlJar)
 			artifact(dairyDoc.dokkaJavadocJar)

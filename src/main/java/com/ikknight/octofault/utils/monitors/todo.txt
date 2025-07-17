@@ -1,0 +1,11 @@
+Device Type	Class(es)	Monitor Name
+DC Motor	DcMotor, DcMotorEx	DcMotorMonitor ✅
+Continuous Servo	CRServo, CRServoImplEx	DcMotorMonitor ✅
+Servo	Servo, ServoImplEx	ServoMonitor ✅
+IMU	IMU IMUMonitor ✅
+Distance Sensor	DistanceSensor, Rev2mDistanceSensor	DistanceSensorMonitor ✅
+Color Sensor	ColorSensor, RevColorSensorV3	ColorSensorMonitor ✅
+Touch Sensor	TouchSensor	TouchSensorMonitor ✅
+Voltage Sensor	VoltageSensor	VoltageSensorMonitor
+Analog Input	AnalogInput	AnalogInputMonitor
+Digital Channel	DigitalChannel	DigitalChannelMonitor
