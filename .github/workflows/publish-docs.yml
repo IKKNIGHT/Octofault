@@ -21,48 +21,20 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Fix Dokka Configuration
-        run: |
-          # Add Dokka plugin to build.gradle.kts if missing
-          if ! grep -q "id(\"org.jetbrains.dokka\")" build.gradle.kts; then
-            echo "Adding Dokka plugin to build.gradle.kts"
-            sed -i '/plugins {/a \    id("org.jetbrains.dokka") version "1.9.20"' build.gradle.kts
-          fi
-          
-          # Configure Dokka if missing
-          if ! grep -q "dokkaHtml" build.gradle.kts; then
-            echo "Adding Dokka configuration to build.gradle.kts"
-            # Append configuration line by line
-            echo "" >> build.gradle.kts
-            echo "tasks.dokkaHtml.configure {" >> build.gradle.kts
-            echo "    outputDirectory.set(file(\"\$buildDir/dokka\"))" >> build.gradle.kts
-            echo "    moduleName.set(\"Octofault\")" >> build.gradle.kts
-            echo "    dokkaSourceSets {" >> build.gradle.kts
-            echo "        named(\"main\") {" >> build.gradle.kts
-            echo "            includes.from(\"src/main/kotlin\")" >> build.gradle.kts
-            echo "            jdkVersion.set(17)" >> build.gradle.kts
-            echo "            sourceLink {" >> build.gradle.kts
-            echo "                localDirectory.set(file(\"src/main/kotlin\"))" >> build.gradle.kts
-            echo "                remoteUrl.set(uri(\"https://github.com/IKKNIGHT/Octofault/tree/main/src/main/kotlin\").toURL())" >> build.gradle.kts
-            echo "                remoteLineSuffix.set(\"#L\")" >> build.gradle.kts
-            echo "            }" >> build.gradle.kts
-            echo "        }" >> build.gradle.kts
-            echo "    }" >> build.gradle.kts
-            echo "}" >> build.gradle.kts
-          fi
-
       - name: Generate Documentation
         run: |
-          ./gradlew dokkaHtml --stacktrace || \
+          ./gradlew dokkaGenerateModuleHtml --stacktrace || \
           { 
             echo "::error::Dokka generation failed!";
-            ./gradlew tasks --all;
             exit 1;
           }
 
       - name: Copy Documentation
         run: |
           mkdir -p docs
+          # Try multiple possible output locations
+          cp -R build/dokka-module/html/module/* docs/ || \
+          cp -R build/dokka/html/* docs/ || \
           cp -R build/dokka/* docs/ || \
           { 
             echo "::error::Documentation not found!";
