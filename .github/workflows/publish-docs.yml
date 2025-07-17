@@ -1,0 +1,40 @@
+name: Publish Documentation
+
+on:
+  push:
+    branches: [ main ]  # Runs on every push to main
+  workflow_dispatch:    # Allows manual triggering
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      # Setup JDK 17
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+          
+      # Generate documentation
+      - name: Generate Docs
+        run: ./gradlew dairyDokkaHtml
+        
+      # Prepare docs directory
+      - name: Prepare Docs
+        run: |
+          mkdir -p docs
+          cp -R build/dokka/html/* docs/
+          touch docs/.nojekyll  # Disable Jekyll processing
+          
+      # Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
