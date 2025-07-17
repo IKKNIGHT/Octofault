@@ -27,40 +27,40 @@ jobs:
           ./gradlew dokkaGenerateModuleHTML --console=verbose
           echo "Dokka generation completed"
 
-      - name: Find Documentation Path
+      - name: Search for Documentation Files
         run: |
-          # Search for dokka output directory
-          DOKKA_PATH=$(find build -type d -name 'dokka' 2>/dev/null | head -1)
+          # Search for documentation files
+          echo "Searching for documentation files..."
           
-          if [ -z "$DOKKA_PATH" ]; then
-            echo "::error::No dokka directory found in build folder!"
+          # Look for common documentation files
+          INDEX_FILE=$(find build -type f -name 'index.html' 2>/dev/null | grep -i 'dokka\|doc' | head -1)
+          PACKAGE_FILE=$(find build -type f -path '*/com/*.html' 2>/dev/null | head -1)
+          
+          if [ -n "$INDEX_FILE" ]; then
+            DOCS_DIR=$(dirname "$INDEX_FILE")
+            echo "Found index.html at: $INDEX_FILE"
+            echo "Using documentation directory: $DOCS_DIR"
+            echo "DOCS_DIR=$DOCS_DIR" >> $GITHUB_ENV
+          elif [ -n "$PACKAGE_FILE" ]; then
+            DOCS_DIR=$(dirname "$PACKAGE_FILE")
+            echo "Found package file at: $PACKAGE_FILE"
+            echo "Using documentation directory: $DOCS_DIR"
+            echo "DOCS_DIR=$DOCS_DIR" >> $GITHUB_ENV
+          else
+            echo "::error::No documentation files found!"
+            echo "Build directory contents:"
+            find build -type d
             exit 1
           fi
           
-          echo "Found dokka directory at: $DOKKA_PATH"
-          echo "Dokka contents:"
-          ls -R $DOKKA_PATH
-          
-          # Find actual HTML content
-          HTML_PATH=$(find $DOKKA_PATH -type d -name 'html' 2>/dev/null | head -1)
-          
-          if [ -z "$HTML_PATH" ]; then
-            echo "::error::No html directory found in dokka output!"
-            exit 1
-          fi
-          
-          echo "Found HTML content at: $HTML_PATH"
-          echo "HTML contents:"
-          ls -R $HTML_PATH
-          
-          # Save path for next steps
-          echo "DOCS_PATH=$HTML_PATH" >> $GITHUB_ENV
+          echo "Documentation directory contents:"
+          ls -R "$DOCS_DIR"
 
       - name: Copy Documentation
         run: |
           mkdir -p docs
-          echo "Copying from $DOCS_PATH to docs/"
-          cp -R "$DOCS_PATH/." docs/
+          echo "Copying from $DOCS_DIR to docs/"
+          cp -R "$DOCS_DIR/." docs/
           
           # Create GitHub Pages configuration
           touch docs/.nojekyll
