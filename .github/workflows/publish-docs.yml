@@ -24,7 +24,7 @@ jobs:
       - name: Generate Documentation
         run: |
           # Run documentation generation with debug output
-          ./gradlew dokkaGenerateModuleHtml --stacktrace --console=plain
+          ./gradlew dokkaGeneratePublicationHtml --stacktrace --console=plain
           echo "Dokka generation completed"
 
       - name: Debug Dokka Output
