@@ -16,15 +16,49 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Generate Documentation
-        run: ./gradlew dokkaGenerateModuleHTML
+      - name: Debug Dokka Generation
+        run: |
+          # Run Dokka with full debug output
+          ./gradlew dokkaGenerateModuleHTML --debug --stacktrace
+          
+          # List all build directories
+          echo "Build directory structure:"
+          find build -type d
+          
+          # Check for any generated files
+          echo "Generated files in dokka directories:"
+          find build -path '*/dokka*' -type f
+          
+          # Check Dokka version
+          echo "Dokka version:"
+          ./gradlew dependencies --configuration dokkaHtmlPluginClasspath | grep dokka
+
+      - name: Create Documentation Placeholder
+        run: |
+          mkdir -p docs
+          echo "<html><body><h1>Documentation Error</h1>" > docs/index.html
+          echo "<p>Dokka failed to generate documentation. Check workflow logs.</p>" >> docs/index.html
+          echo "<p>Possible causes:</p>" >> docs/index.html
+          echo "<ul>" >> docs/index.html
+          echo "<li>No public classes/methods to document</li>" >> docs/index.html
+          echo "<li>Incorrect Dokka configuration</li>" >> docs/index.html
+          echo "<li>JDK compatibility issues</li>" >> docs/index.html
+          echo "</ul>" >> docs/index.html
+          echo "</body></html>" >> docs/index.html
+          
+          touch docs/.nojekyll
+          echo "# Documentation" > docs/README.md
+          echo "Error generating documentation: [View Details](index.html)" >> docs/README.md
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/dokka/<your-custom-task-html-directory>
+          publish_dir: ./docs
+          keep_files: false
+          force_orphan: true
