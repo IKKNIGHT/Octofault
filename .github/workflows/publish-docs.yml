@@ -2,7 +2,7 @@ name: Publish Documentation
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build-and-deploy:
@@ -24,42 +24,22 @@ jobs:
       - name: Generate Documentation
         run: ./gradlew dokkaGenerateModuleHTML
 
-      - name: Debug: List build directory
+      - name: Prepare Documentation Directory
         run: |
-          echo "Build directory structure:"
-          find build -type d
-          echo "Dokka output contents:"
-          find build/dokka-module -type f || true
-
-      - name: Locate and Copy Documentation
-        run: |
-          # Check multiple possible locations
-          if [ -d "build/dokka-module/html" ]; then
-            echo "Found HTML documentation at build/dokka-module/html"
-            mkdir -p docs
-            cp -R build/dokka-module/html/* docs/
-          elif [ -d "build/dokka/html" ]; then
-            echo "Found HTML documentation at build/dokka/html"
-            mkdir -p docs
-            cp -R build/dokka/html/* docs/
-          elif [ -d "build/dokka" ]; then
-            echo "Found documentation at build/dokka"
-            mkdir -p docs
-            cp -R build/dokka/* docs/
-          else
-            echo "Documentation not found! Directory listing:"
-            ls -R build
-            exit 1
-          fi
-          
-          # Verify docs content
-          echo "Copied documentation contents:"
-          ls -R docs
+          mkdir -p docs
+          # Copy documentation from the correct path
+          cp -R build/dokka-module/html/module/* docs/
           
           # Create necessary files for GitHub Pages
           touch docs/.nojekyll
           echo "# Documentation" > docs/README.md
           echo "Automatically generated documentation: [View Docs](index.html)" >> docs/README.md
+
+      - name: Verify Documentation Files
+        run: |
+          echo "Documentation files:"
+          ls -la docs/
+          echo "File count: $(find docs -type f | wc -l)"
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
