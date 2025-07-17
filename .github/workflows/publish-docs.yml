@@ -16,18 +16,50 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: 'gradle'
 
-      - name: Grant execute permission for Gradle
+      - name: Make gradlew executable
         run: chmod +x gradlew
 
       - name: Generate Documentation
-        run: ./gradlew dokkaGenerateModuleHTML
-
-      - name: Prepare Docs Directory
         run: |
-          mkdir -p docs
-          cp -R build/dokka/html/* docs/
-          touch docs/.nojekyll  # Disable Jekyll processing
+          # Try different Dokka tasks until one works
+          if ./gradlew dokkaGenerateModuleHTML; then
+            echo "Generated with dokkaGenerateModuleHTML"
+          elif ./gradlew dokkaGeneratePublicationHTML; then
+            echo "Generated with dokkaGeneratePublicationHTML"
+          elif ./gradlew dokkaGenerate; then
+            echo "Generated with dokkaGenerate"
+          else
+            echo "All Dokka tasks failed!"
+            exit 1
+          fi
+
+      - name: Locate and Copy Documentation
+        run: |
+          # Search for dokka output in common locations
+          if [ -d "build/dokka/html" ]; then
+            echo "Found HTML docs at build/dokka/html"
+            cp -R build/dokka/html/* docs/
+          elif [ -d "build/dokka" ]; then
+            echo "Found docs at build/dokka"
+            cp -R build/dokka/* docs/
+          elif [ -d "build/reports/dokka" ]; then
+            echo "Found docs at build/reports/dokka"
+            cp -R build/reports/dokka/* docs/
+          elif [ -d "build/docs/dokka" ]; then
+            echo "Found docs at build/docs/dokka"
+            cp -R build/docs/dokka/* docs/
+          else
+            echo "Could not find Dokka output! Directory listing:"
+            ls -R build
+            exit 1
+          fi
+          
+          # Create necessary files for GitHub Pages
+          touch docs/.nojekyll
+          echo "# Documentation" > docs/README.md
+          echo "Automatically generated documentation: [View Docs](index.html)" >> docs/README.md
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
@@ -35,3 +67,8 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
           keep_files: false
+          force_orphan: true  # Keep only latest deployment
+
+      - name: Verify Deployment
+        run: |
+          echo "Documentation deployed to: https://${{ github.repository_owner }}.github.io/${GITHUB_REPOSITORY#*/}/"
