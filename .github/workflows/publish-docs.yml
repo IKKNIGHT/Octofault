@@ -23,20 +23,43 @@ jobs:
 
       - name: Generate Documentation
         run: |
-          # Run Dokka and capture output
-          ./gradlew dokkaGenerateModuleHTML || true
+          # Run all possible Dokka tasks
+          ./gradlew dokkaGenerateModuleHTML dokkaGeneratePublicationHTML dokkaGenerate || true
           echo "Dokka generation completed"
 
-      - name: Find Documentation Files
+      - name: Find and Copy Documentation
         run: |
-          # Search for all HTML files in build directory
-          mkdir -p docs
-          find build -name '*.html' -exec cp --parents {} docs/ \;
+          # Check all possible Dokka output locations
+          POSSIBLE_PATHS=(
+            "build/dokka"
+            "build/dokka/html"
+            "build/dokka-module"
+            "build/dokka-module/html"
+            "build/reports/dokka"
+            "build/docs/dokka"
+            "build/dokka-publication"
+          )
           
-          # If no HTML files found, create placeholder
-          if [ -z "$(find docs -name '*.html')" ]; then
-            echo "No documentation found! Creating placeholder"
-            echo "<html><body><h1>Documentation Not Generated</h1></body></html>" > docs/index.html
+          FOUND=0
+          for path in "${POSSIBLE_PATHS[@]}"; do
+            if [ -d "$path" ]; then
+              echo "Found documentation at: $path"
+              mkdir -p docs
+              cp -R "$path/." docs/
+              FOUND=1
+              break
+            fi
+          done
+          
+          if [ "$FOUND" -eq 0 ]; then
+            echo "WARNING: No documentation found in standard locations!"
+            echo "Searching entire build directory for HTML files..."
+            find build -name '*.html' -exec cp --parents {} docs/ \;
+          
+            if [ ! -f "docs/index.html" ]; then
+              echo "Creating placeholder documentation"
+              echo "<html><body><h1>Documentation Not Found</h1><p>Check workflow logs for details</p></body></html>" > docs/index.html
+            fi
           fi
           
           # Create necessary files for GitHub Pages
@@ -46,9 +69,9 @@ jobs:
 
       - name: Verify Documentation Files
         run: |
-          echo "Documentation files:"
-          find docs -type f
-          echo "File count: $(find docs -type f | wc -l)"
+          echo "Documentation files in docs/:"
+          ls -R docs || true
+          echo "HTML files found: $(find docs -name '*.html' | wc -l)"
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
