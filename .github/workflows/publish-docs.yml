@@ -1,88 +1,11 @@
-name: Publish Documentation
+- name: Generate Documentation
+  run: ./gradlew dokkaGenerateModuleHTML
 
-on:
-  push:
-    branches: [main]
+- name: List Dokka Output (Debug)
+  run: ls -lR build/dokka
 
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'gradle'
-
-      - name: Make gradlew executable
-        run: chmod +x gradlew
-
-      - name: Fix Dokka Configuration
-        run: |
-          # Add Dokka plugin to build.gradle.kts if missing
-          if ! grep -q "id(\"org.jetbrains.dokka\")" build.gradle.kts; then
-            echo "Adding Dokka plugin to build.gradle.kts"
-            sed -i '/plugins {/a \    id("org.jetbrains.dokka") version "1.9.20"' build.gradle.kts
-          fi
-          
-          # Configure Dokka if missing
-          if ! grep -q "dokkaHtml" build.gradle.kts; then
-            echo "Adding Dokka configuration to build.gradle.kts"
-            cat >> build.gradle.kts << 'EOF'
-          
-            tasks.dokkaHtml.configure {
-                outputDirectory.set(file("$buildDir/dokka"))
-                moduleName.set("Octofault")
-                dokkaSourceSets {
-                    named("main") {
-                        includes.from("src/main/kotlin")
-                        jdkVersion.set(17)
-                        sourceLink {
-                            localDirectory.set(file("src/main/kotlin"))
-                            remoteUrl.set(uri("https://github.com/IKKNIGHT/Octofault/tree/main/src/main/kotlin").toURL())
-                            remoteLineSuffix.set("#L")
-                        }
-                    }
-                }
-            }
-            EOF
-          fi
-
-      - name: Generate Documentation
-        run: |
-          # Generate documentation with HTML output
-          ./gradlew dokkaHtml --stacktrace || \
-          { 
-            echo "::error::Dokka generation failed!";
-            ./gradlew tasks --all;
-            exit 1;
-          }
-
-      - name: Copy Documentation
-        run: |
-          mkdir -p docs
-          cp -R build/dokka/* docs/ || \
-          cp -R build/dokka/html/* docs/ || \
-          { 
-            echo "::error::Documentation not found!";
-            find build -name 'dokka*' -print;
-            exit 1;
-          }
-          
-          touch docs/.nojekyll
-          echo "# Documentation" > docs/README.md
-          echo "Automatically generated documentation: [View Docs](index.html)" >> docs/README.md
-          echo "Files copied to docs/:"
-          ls -R docs
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
-          keep_files: false
-          force_orphan: true
+- name: Deploy to GitHub Pages
+  uses: peaceiris/actions-gh-pages@v3
+  with:
+    github_token: ${{ secrets.GITHUB_TOKEN }}
+    publish_dir: ./build/dokka/moduleHtml
