@@ -1,58 +1,79 @@
 name: Publish Documentation
 
 on:
-    push:
-        branches: [main]
+  push:
+    branches: [main]
 
 jobs:
-    build-and-deploy:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: Setup JDK 17
-              uses: actions/setup-java@v3
-              with:
-                  java-version: '17'
-                  distribution: 'temurin'
-                  cache: 'gradle'
+      - name: Setup JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
 
-            - name: Make gradlew executable
-              run: chmod +x gradlew
+      - name: Make gradlew executable
+        run: chmod +x gradlew
 
-            - name: Generate Documentation
-              run: |
-                  # Run documentation generation with verbose output
-                  ./gradlew dokkaGenerateModuleHTML --console=verbose
+      - name: Generate Documentation
+        run: |
+          # Run documentation generation with debug output
+          ./gradlew dokkaGenerateModuleHTML --console=verbose
+          echo "Dokka generation completed"
 
-            - name: Copy Documentation
-              run: |
-                  # Create docs directory
-                  mkdir -p docs
-                  
-                  # Copy from the correct path based on previous output
-                  cp -R build/dokka/html/* docs/ || \
-                  cp -R build/dokka-module/html/module/* docs/ || \
-                  cp -R build/dokka/* docs/ || \
-                  { echo "No documentation found in expected locations!"; exit 1; }
-                  
-                  # Create GitHub Pages configuration
-                  touch docs/.nojekyll
-                  echo "# Documentation" > docs/README.md
-                  echo "Automatically generated documentation: [View Docs](index.html)" >> docs/README.md
+      - name: Find Documentation Path
+        run: |
+          # Search for dokka output directory
+          DOKKA_PATH=$(find build -type d -name 'dokka' 2>/dev/null | head -1)
+          
+          if [ -z "$DOKKA_PATH" ]; then
+            echo "::error::No dokka directory found in build folder!"
+            exit 1
+          fi
+          
+          echo "Found dokka directory at: $DOKKA_PATH"
+          echo "Dokka contents:"
+          ls -R $DOKKA_PATH
+          
+          # Find actual HTML content
+          HTML_PATH=$(find $DOKKA_PATH -type d -name 'html' 2>/dev/null | head -1)
+          
+          if [ -z "$HTML_PATH" ]; then
+            echo "::error::No html directory found in dokka output!"
+            exit 1
+          fi
+          
+          echo "Found HTML content at: $HTML_PATH"
+          echo "HTML contents:"
+          ls -R $HTML_PATH
+          
+          # Save path for next steps
+          echo "DOCS_PATH=$HTML_PATH" >> $GITHUB_ENV
 
-            - name: Verify Documentation
-              run: |
-                  echo "Documentation contents:"
-                  ls -R docs
-                  echo "Index file exists: $(test -f docs/index.html && echo YES || echo NO)"
-                  echo "Package file count: $(find docs/com -type f 2>/dev/null | wc -l)"
+      - name: Copy Documentation
+        run: |
+          mkdir -p docs
+          echo "Copying from $DOCS_PATH to docs/"
+          cp -R "$DOCS_PATH/." docs/
+          
+          # Create GitHub Pages configuration
+          touch docs/.nojekyll
+          echo "# Documentation" > docs/README.md
+          echo "Automatically generated documentation: [View Docs](index.html)" >> docs/README.md
+          
+          echo "Copied files:"
+          ls -R docs
 
-            - name: Deploy to GitHub Pages
-              uses: peaceiris/actions-gh-pages@v3
-              with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
-                  publish_dir: ./docs
-                  keep_files: false
-                  force_orphan: true
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          keep_files: false
+          force_orphan: true
