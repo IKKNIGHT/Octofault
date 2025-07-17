@@ -4,18 +4,16 @@ plugins {
 	id("dev.frozenmilk.doc") version "0.0.4"
 }
 
-// TODO: modify
-android.namespace = "com.ikknight.octofault"
+android {
+	namespace = "com.ikknight.octofault"
+}
 
-// Most FTC libraries will want the following
 ftc {
-
 	sdk {
 		RobotCore
 		FtcCommon {
 			configurationNames += "testImplementation"
 		}
-
 	}
 }
 
@@ -31,19 +29,41 @@ repositories {
 	}
 }
 
+
 publishing {
 	publications {
 		register<MavenPublication>("release") {
-			// TODO: modify
 			groupId = "com.ikknight"
-			// TODO: modify
 			artifactId = "octofault"
 
+			// Add documentation artifacts
 			artifact(dairyDoc.dokkaHtmlJar)
 			artifact(dairyDoc.dokkaJavadocJar)
+			// Add sources JAR for better IDE support
+
 
 			afterEvaluate {
 				from(components["release"])
+			}
+
+			// Add POM metadata (recommended)
+			pom {
+				name.set("OctoFault")
+				description.set("A simple sanitization library")
+				url.set("https://github.com/IKKNIGHT/Octofault")
+				licenses {
+					license {
+						name.set("The Apache License, Version 2.0")
+						url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+					}
+				}
+				developers {
+					developer {
+						id.set("IKKNIGHT")
+						name.set("isaaq")
+						email.set("IK_Knight@outlook.com")
+					}
+				}
 			}
 		}
 	}
