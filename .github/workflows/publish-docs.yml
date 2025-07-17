@@ -22,26 +22,22 @@ jobs:
         run: chmod +x gradlew
 
       - name: Generate Documentation
-        run: |
-          # Generate docs using the module task
-          ./gradlew dokkaGenerateModuleHTML
+        run: ./gradlew dokkaGenerateModuleHTML
 
       - name: Locate and Copy Documentation
         run: |
-          # Specific path found in your error log
           DOCS_PATH="build/dokka-module/html/module"
           
           if [ -d "$DOCS_PATH" ]; then
             echo "Found documentation at: $DOCS_PATH"
             mkdir -p docs
-            cp -R "$DOCS_PATH"/* docs/
+            cp -R "$DOCS_PATH/." docs/
           else
             echo "Documentation not found! Directory structure:"
             find build -type d
             exit 1
           fi
           
-          # Create necessary files for GitHub Pages
           touch docs/.nojekyll
           echo "# Documentation" > docs/README.md
           echo "Automatically generated documentation: [View Docs](index.html)" >> docs/README.md
