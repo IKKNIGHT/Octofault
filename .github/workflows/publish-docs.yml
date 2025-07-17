@@ -21,11 +21,10 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Generate Documentation
+      - name: Generate Documentation (Multiple Formats)
         run: |
-          # Generate HTML documentation
-          ./gradlew dokkaGeneratePublicationHtml --stacktrace --console=plain
-          echo "Dokka HTML generation completed"
+          ./gradlew dokkaGeneratePublicationHtml dokkaGeneratePublicationJavadoc --stacktrace --console=plain
+          echo "Dokka generation completed"
 
       - name: Debug Dokka Output
         run: |
