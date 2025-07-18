@@ -83,16 +83,7 @@ public abstract class DeviceRegistrator {
     }
 
     /**
-     * Register a custom device to be monitored.
-     * eg : <pre>
-     * {@code
-     * if (device instanceOf DcMotorSimple){
-     *  return new DcMotorMonitor(name, (DcMotorSimple) device);
-     * }
-     * }
-     * </pre>
-     * Where DcMotorSimple is the device type class that you want to monitor. And DcMotorMonitor is your custom Monitor class that <pre>{@code extends DeviceMonitor<ClassType>}</pre>
-     * Consider making a pull request if you wrote one for a new sensor/device.
+     * Register a custom device to be monitored. eg : <pre>{@code if (device instanceOf DcMotorSimple){return new DcMotorMonitor(name, (DcMotorSimple) device);}}</pre> Where DcMotorSimple is the device type class that you want to monitor. And DcMotorMonitor is your custom Monitor class that <pre>{@code extends DeviceMonitor<ClassType>}</pre> Consider making a pull request if you wrote one for a new sensor/device.
      * @see HardwareDevice
      * @see DeviceMonitor
      * @see DeviceRegistrator#registerDevice(HardwareDevice)

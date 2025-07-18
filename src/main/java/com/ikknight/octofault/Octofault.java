@@ -91,8 +91,7 @@ public class Octofault {
     }
 
     /**
-     * Constructor for Octofault class.
-     * Be sure to initialise your deviceRegistrator before/after calling the constructor
+     * Constructor for Octofault class. Be sure to initialise your deviceRegistrator before/after calling the constructor
      * @see DeviceRegistrator
      * @param hardwareMap The hardware map of the robot.
      * @param telemetry The telemetry for octofault to log to.
@@ -108,8 +107,7 @@ public class Octofault {
     }
 
     /**
-     * Constructor for Octofault class.
-     * Be sure to initialise your deviceRegistrator before/after calling the constructor
+     * Constructor for Octofault class. Be sure to initialise your deviceRegistrator before/after calling the constructor.
      * @param hardwareMap The hardware map of the robot.
      * @param loggingStream The logging stream to log to.
      * @param registrator The device registrator to use.
@@ -124,9 +122,7 @@ public class Octofault {
     }
 
     /**
-     * Constructor for Octofault class.
-     * Be sure to initialise your deviceRegistrator before/after calling the constructor
-     * Be sure to set your fault managers' logging stream.
+     * Constructor for Octofault class. Be sure to initialise your deviceRegistrator before/after calling the constructor.Be sure to set your fault managers' logging stream.
      * @param hardwareMap The hardware map of the robot.
      * @param faultManager The fault manager to use.
      * @param registrator The device registrator to use.

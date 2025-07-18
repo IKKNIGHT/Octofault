@@ -9,6 +9,7 @@ android {
 }
 
 ftc {
+	kotlin
 	sdk {
 		RobotCore
 		FtcCommon {
@@ -16,7 +17,11 @@ ftc {
 		}
 	}
 }
-
+val dokkaJar = tasks.register<Jar>("dokkaJar") {
+	dependsOn(tasks.named("dokkaGenerate"))
+	from(dokka.basePublicationsDirectory.dir("javadoc"))
+	archiveClassifier.set("javadoc")
+}
 dependencies {
 	compileOnly("com.acmerobotics.slothboard:dashboard:0.2.3+0.4.16")
 	compileOnly("dev.frozenmilk.sinister:Sloth:0.2.3")
@@ -28,6 +33,7 @@ repositories {
 		url = uri("https://repo.dairy.foundation/releases")
 	}
 }
+
 
 
 publishing {
