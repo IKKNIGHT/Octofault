@@ -2,7 +2,6 @@ package com.ikknight.octofault.utils;
 
 /**
  * Base class for logging fault messages to different outputs.
- *
  * Extend this class to create custom logging implementations.
  */
 public abstract class LoggingStream {

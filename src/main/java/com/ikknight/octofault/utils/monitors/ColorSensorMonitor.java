@@ -11,11 +11,9 @@ import com.ikknight.octofault.utils.LoggingStream;
 
 /**
  * Monitors ColorSensor devices for faults and anomalies.
- *
  * Supported devices:
  * - [ColorSensor]
  * - [RevColorSensorV3]
- *
  * Detects the following issues:
  * - Negative or NaN color values
  * - I2C communication failures

@@ -9,7 +9,6 @@ import java.util.Map;
 
 /**
  * Central manager for device monitoring and fault handling.
- *
  * Manages a collection of device monitors and coordinates fault logging
  * through a configurable logging stream.
  *

@@ -7,14 +7,12 @@ import com.qualcomm.robotcore.hardware.*;
 
 /**
  * Monitors DC motors and continuous rotation servos for stalls and performance issues.
- *
  * Supported devices:
  * - DcMotor
  * - DcMotorEx
  * - CRServo
  * - CRServoImpl
  * - CRServoImplEx
- *
  * Checks for:
  * - Motor stalls (encoder not moving under power)
  * - Low velocity under power

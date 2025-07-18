@@ -8,11 +8,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 /**
  * Monitors distance sensors for invalid readings and communication issues.
- *
  * Supported devices:
  * - DistanceSensor
  * - Rev2mDistanceSensor
- *
  * Checks for:
  * - NaN or negative distance values
  * - Readings outside reasonable range (0–1000cm)

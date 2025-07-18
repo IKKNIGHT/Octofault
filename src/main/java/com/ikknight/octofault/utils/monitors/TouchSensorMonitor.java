@@ -7,10 +7,8 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 /**
  * Monitors touch sensors for invalid readings and hardware faults.
- *
  * Supported devices:
  * - TouchSensor
- *
  * Checks for:
  * - NaN or negative values
  * - Readings outside expected range [0.0–1.0]

@@ -26,7 +26,6 @@ import java.util.Set;
 
 /**
  * Automatically detects and registers hardware devices for fault monitoring.
- *
  * Pass the HardwareMap after all devices have been configured.
  */
 public abstract class DeviceRegistrator {
@@ -82,7 +81,6 @@ public abstract class DeviceRegistrator {
 
     /**
      * Override this method to register custom device types.
-     *
      * Example:
      * ```java
      * if (device instanceof MyCustomSensor) {

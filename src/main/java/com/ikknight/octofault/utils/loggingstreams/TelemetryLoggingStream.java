@@ -8,7 +8,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /**
  * Logging stream that outputs to FTC telemetry and dashboard.
- *
  * This is the default logging stream implementation for Octofault.
  * Messages are sent to both the standard telemetry output and the
  * FTC Dashboard (if enabled).

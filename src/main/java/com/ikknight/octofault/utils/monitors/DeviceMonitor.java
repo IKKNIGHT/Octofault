@@ -8,7 +8,6 @@ import java.util.List;
 
 /**
  * Base class for monitoring hardware devices and detecting faults.
- *
  * Extend this class to create monitors for specific device types.
  *
  * @param <T> The type of hardware device being monitored
@@ -32,7 +31,6 @@ public abstract class DeviceMonitor<T extends HardwareDevice> {
 
     /**
      * Checks device health and updates fault status.
-     *
      * Called regularly by the FaultManager to monitor device state.
      */
     public abstract void update();
@@ -111,7 +109,6 @@ public abstract class DeviceMonitor<T extends HardwareDevice> {
 
     /**
      * Gets the device type name.
-     *
      * Return from most specific to least specific (e.g., "DcMotorEx" rather than "DcMotor").
      *
      * @return Device type identifier

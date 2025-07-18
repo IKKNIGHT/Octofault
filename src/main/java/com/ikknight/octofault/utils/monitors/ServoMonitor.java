@@ -10,12 +10,10 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 /**
  * Monitors servo motors for position and PWM issues.
- *
  * Supported devices:
  * - Servo
  * - ServoImpl
  * - ServoImplEx
- *
  * Checks for:
  * - Position values outside [0.0–1.0] range
  * - PWM status
