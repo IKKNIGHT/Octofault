@@ -1,1 +1,1 @@
-# https://octofault.ikknight.tech
+# http://octofault.ikknight.tech
