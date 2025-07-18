@@ -12,7 +12,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /**
  * Class for managing device faults.
- * Main paradigm for octofault, please call constructors after all devices are registered on a hardwaremap..
+ * Main paradigm for octofault, please call constructors after all devices are registered on a hardwaremap.
  */
 public class Octofault {
     HardwareMap hardwareMap;
