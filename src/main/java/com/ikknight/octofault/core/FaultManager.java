@@ -8,7 +8,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Class for managing device faults.
+ * Central manager for device monitoring and fault handling.
+ *
+ * Manages a collection of device monitors and coordinates fault logging
+ * through a configurable logging stream.
+ *
  * @see DeviceMonitor
  * @see LoggingStream
  */
@@ -18,15 +22,16 @@ public class FaultManager {
     private LoggingStream loggingStream;
 
     /**
-     * Constructor for FaultManager class.
-     * @param monitor The device monitor to be registered.
+     * Registers a device monitor with the fault manager.
+     *
+     * @param monitor The device monitor to register
      */
     public void register(DeviceMonitor<?> monitor){
         monitors.put(monitor.getName(), monitor);
     }
 
     /**
-     * Set the logging stream to be used for logging faults.
+     * Updates all registered monitors and logs any detected faults.
      */
     public void updateAll(){
         for (DeviceMonitor<?> monitor : monitors.values()){
@@ -38,51 +43,57 @@ public class FaultManager {
     }
 
     /**
-     * Set the logging stream to be used for logging faults. DO NOT USE THIS METHOD
-     * @param loggingStream The logging stream to be used for logging faults.
+     * Sets the logging stream for fault reporting.
+     *
+     * @param loggingStream The logging stream to use for fault reporting
+     * @deprecated Use dependency injection instead
      */
+    @Deprecated
     public void setLoggingStream(LoggingStream loggingStream) {
         this.loggingStream = loggingStream;
     }
 
     /**
-     * Get a device monitor by name.
-     * @param name The name of the device monitor to get.
-     * @return The device monitor with the given name.
+     * Retrieves a device monitor by name.
+     *
+     * @param name The name of the device monitor
+     * @return The device monitor, or null if not found
      */
     public DeviceMonitor<?> getMonitor(String name) {
         return monitors.get(name);
     }
 
     /**
-     * Get all device monitors.
-     * @return All device monitors.
+     * Gets all registered device monitors.
+     *
+     * @return Collection of all device monitors
      */
     public Collection<DeviceMonitor<?>> getAllMonitors() {
         return monitors.values();
     }
 
     /**
-     * Get the logging stream to be used for logging faults.
-     * @return The logging stream to be used for logging faults.
+     * Gets the current logging stream.
+     *
+     * @return The current logging stream, or null if not set
      */
     public LoggingStream getLoggingStream() {
         return loggingStream;
     }
 
     /**
-     * Remove a device monitor by name.
-     * @param name Configuration name of the device monitor to remove.
+     * Removes a device monitor by name.
+     *
+     * @param name The configuration name of the device monitor to remove
      */
     public void removeMonitor(String name) {
         monitors.remove(name);
     }
 
     /**
-     * Remove all device monitors.
+     * Removes all registered device monitors.
      */
     public void removeAllMonitors() {
         monitors.clear();
     }
-
 }

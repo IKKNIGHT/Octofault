@@ -7,8 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Base class for device monitoring.
- * @param <T> The type of device being monitored.
+ * Base class for monitoring hardware devices and detecting faults.
+ *
+ * Extend this class to create monitors for specific device types.
+ *
+ * @param <T> The type of hardware device being monitored
  */
 public abstract class DeviceMonitor<T extends HardwareDevice> {
     protected final String name;
@@ -17,10 +20,10 @@ public abstract class DeviceMonitor<T extends HardwareDevice> {
     protected final List<String> faultReasons = new ArrayList<>();
 
     /**
-     * Constructor for DeviceMonitor class.
+     * Creates a device monitor.
      *
-     * @param name   The name of the device being monitored.
-     * @param device The device being monitored.
+     * @param name Device name from hardware map
+     * @param device Hardware device instance
      */
     public DeviceMonitor(String name, T device) {
         this.name = name;
@@ -28,50 +31,52 @@ public abstract class DeviceMonitor<T extends HardwareDevice> {
     }
 
     /**
-     * Poll data + run checks.
+     * Checks device health and updates fault status.
+     *
+     * Called regularly by the FaultManager to monitor device state.
      */
-    public abstract void update();  // Poll data + run checks
+    public abstract void update();
 
     /**
-     * Returns the name of the device being monitored.
+     * Gets the device name.
      *
-     * @return The name of the device.
+     * @return Device name from hardware map
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Returns the device being monitored.
+     * Gets the monitored device.
      *
-     * @return The device.
+     * @return Hardware device instance
      */
     public T getDevice() {
         return device;
     }
 
     /**
-     * Returns whether the device is faulty.
+     * Checks if the device is operating normally.
      *
-     * @return True if the device is faulty, false otherwise.
+     * @return True if no faults detected, false otherwise
      */
     public boolean isHealthy() {
         return !isFaulty;
     }
 
     /**
-     * Returns the list of fault reasons.
+     * Gets all current fault reasons.
      *
-     * @return The list of fault reasons.
+     * @return List of fault descriptions
      */
     public List<String> getFaultReasons() {
         return faultReasons;
     }
 
     /**
-     * Reports a fault to the device.
+     * Reports a fault condition.
      *
-     * @param reason The reason for the fault.
+     * @param reason Description of the fault
      */
     protected void reportFault(String reason) {
         isFaulty = true;
@@ -79,19 +84,18 @@ public abstract class DeviceMonitor<T extends HardwareDevice> {
     }
 
     /**
-     * Reports a fault to the device.
+     * Reports a fault condition with severity level.
      *
-     * @param severity The severity of the fault.
-     * @param reason The reason for the fault.
-     **/
+     * @param severity Fault severity level
+     * @param reason Description of the fault
+     */
     protected void reportFault(LoggingStream.LogLevel severity, String reason){
         isFaulty = true;
         faultReasons.add(severity.toString() + ": " + reason);
     }
 
-
     /**
-     * Clears all fault reasons.
+     * Clears all fault conditions.
      */
     protected void clearFaults() {
         isFaulty = false;
@@ -99,14 +103,18 @@ public abstract class DeviceMonitor<T extends HardwareDevice> {
     }
 
     /**
-     * Clears all fault reasons.
+     * Gets current device state for debugging.
+     *
+     * @return Formatted string with device status
      */
-    public abstract Object getCurrentValue();  // For debugging/logging
+    public abstract Object getCurrentValue();
 
     /**
-     * Returns the type of device being monitored.
-     * also please return from specific to unspecific for example CrServoImplEx extends CRservo so CrServoImplEx is also an instance of CRServo
-     * @return The type of device being monitored. for example {@code DistanceSensorMonitor} would return {@code "DistanceSensor"} etc.
+     * Gets the device type name.
+     *
+     * Return from most specific to least specific (e.g., "DcMotorEx" rather than "DcMotor").
+     *
+     * @return Device type identifier
      */
     public abstract String getDeviceType();
 }

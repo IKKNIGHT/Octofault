@@ -7,7 +7,12 @@ import com.ikknight.octofault.utils.LoggingStream;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /**
- * Logging stream for telemetry. This is the default logging stream for Octofault.
+ * Logging stream that outputs to FTC telemetry and dashboard.
+ *
+ * This is the default logging stream implementation for Octofault.
+ * Messages are sent to both the standard telemetry output and the
+ * FTC Dashboard (if enabled).
+ *
  * @see LoggingStream
  */
 public class TelemetryLoggingStream extends LoggingStream {
@@ -15,8 +20,9 @@ public class TelemetryLoggingStream extends LoggingStream {
     Telemetry telemetry;
 
     /**
-     * Constructor for TelemetryLoggingStream class.
-     * @param telemetry The telemetry to log to.
+     * Creates a new TelemetryLoggingStream.
+     *
+     * @param telemetry The telemetry instance to log to
      */
     public TelemetryLoggingStream(Telemetry telemetry) {
         dashboard = FtcDashboard.getInstance();

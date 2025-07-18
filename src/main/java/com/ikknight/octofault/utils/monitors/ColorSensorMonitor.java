@@ -10,28 +10,26 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynchDevice;
 import com.ikknight.octofault.utils.LoggingStream;
 
 /**
- * Monitor class for all devices that implement {@link ColorSensor}, including:
- * <ul>
- *     <li>{@link ColorSensor}</li>
- *     <li>{@link RevColorSensorV3}</li>
- * </ul>
+ * Monitors ColorSensor devices for faults and anomalies.
  *
- * <p>This monitor checks for:</p>
- * <ul>
- *     <li>Negative or NaN color values</li>
- *     <li>I2C communication issues</li>
- *     <li>White balance consistency (RevColorSensorV3)</li>
- * </ul>
+ * Supported devices:
+ * - [ColorSensor]
+ * - [RevColorSensorV3]
+ *
+ * Detects the following issues:
+ * - Negative or NaN color values
+ * - I2C communication failures
+ * - White balance inconsistencies (RevColorSensorV3 only)
  *
  * @see DeviceMonitor
  */
 public class ColorSensorMonitor extends DeviceMonitor<ColorSensor> {
 
     /**
-     * Constructor for ColorSensorMonitor.
+     * Creates a new ColorSensorMonitor.
      *
-     * @param name   The hardwareMap name of the color sensor.
-     * @param device The color sensor device instance.
+     * @param name The hardware map name of the color sensor
+     * @param device The color sensor device instance
      */
     public ColorSensorMonitor(String name, ColorSensor device) {
         super(name, device);
@@ -97,7 +95,6 @@ public class ColorSensorMonitor extends DeviceMonitor<ColorSensor> {
             clearFaults();
         }
     }
-
 
     @SuppressLint("DefaultLocale")
     @Override

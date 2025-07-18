@@ -9,36 +9,28 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 /**
- * Monitor class for all devices that extend to IMU. Being
- * <li>IMU</li>
+ * Monitors IMU sensors for orientation and angular velocity issues.
  *
- * Coincidentally, IMU is the universal interface, so the need for BNO055 and BHI260AP specific monitors is not needed.
- * Of course, you can always make your own IMU monitor if needed.
+ * Supported devices:
+ * - IMU (universal interface for BNO055, BHI260AP, etc.)
  *
- * <p>This monitor checks for:</p>
- * <ul>
- *     <li>NaN orientation (yaw/pitch/roll)</li>
- *     <li>Null angular velocity</li>
- *     <li>Runtime exceptions during read</li>
- * </ul>
- *
- * @see DeviceMonitor
+ * Checks for:
+ * - NaN orientation values (yaw/pitch/roll)
+ * - Null angular velocity data
+ * - Communication errors
  */
 public class IMUMonitor extends DeviceMonitor<IMU> {
 
     /**
-     * Constructor for IMUMonitor class.
+     * Creates an IMU monitor.
      *
-     * @param name   The name of the device being monitored.
-     * @param device The device being monitored.
+     * @param name Device name from hardware map
+     * @param device IMU instance
      */
     public IMUMonitor(String name, IMU device) {
         super(name, device);
     }
 
-    /**
-     * Polls the IMU data and checks for sanity and fault conditions.
-     */
     @Override
     public void update() {
         boolean errorsInThisUpdate = false;
@@ -75,11 +67,6 @@ public class IMUMonitor extends DeviceMonitor<IMU> {
         }
     }
 
-    /**
-     * Returns a string representation of the IMU's current orientation in degrees.
-     *
-     * @return The orientation values as a formatted string, or a failure message if not available.
-     */
     @SuppressLint("DefaultLocale")
     @Override
     public Object getCurrentValue() {
@@ -94,11 +81,6 @@ public class IMUMonitor extends DeviceMonitor<IMU> {
         }
     }
 
-    /**
-     * Returns the device type as a string.
-     *
-     * @return The string "IMU".
-     */
     @Override
     public String getDeviceType() {
         return "IMU";

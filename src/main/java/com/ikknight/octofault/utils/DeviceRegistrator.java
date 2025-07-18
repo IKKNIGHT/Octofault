@@ -1,6 +1,5 @@
 package com.ikknight.octofault.utils;
 
-
 import com.ikknight.octofault.core.FaultManager;
 import com.ikknight.octofault.utils.monitors.ColorSensorMonitor;
 import com.ikknight.octofault.utils.monitors.DcMotorMonitor;
@@ -26,7 +25,9 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import java.util.Set;
 
 /**
- * Class for identifying devices in the hardwaremap and registering them for sanitization.
+ * Automatically detects and registers hardware devices for fault monitoring.
+ *
+ * Pass the HardwareMap after all devices have been configured.
  */
 public abstract class DeviceRegistrator {
 
@@ -34,9 +35,10 @@ public abstract class DeviceRegistrator {
     private final FaultManager faultManager;
 
     /**
-     * Constructor for DeviceRegistrator class, pass in the hardwareMap after you have added all your devices to it.
-     * @param hardwareMap The hardware map of the robot.(with the devices added)
-     * @param faultManager The fault manager of the robot.
+     * Creates a device registrator.
+     *
+     * @param hardwareMap Hardware map containing all configured devices
+     * @param faultManager Fault manager to register monitors with
      */
     public DeviceRegistrator(HardwareMap hardwareMap, FaultManager faultManager){
         this.hardwareMap = hardwareMap;
@@ -44,10 +46,9 @@ public abstract class DeviceRegistrator {
     }
 
     /**
-     * Register a device to be monitored.
-     * @see HardwareDevice
-     * @see DeviceMonitor
-     * @param device The device to be registered.
+     * Registers a single device for monitoring.
+     *
+     * @param device The hardware device to monitor
      */
     public void registerDevice(HardwareDevice device){
         Set<String> names = hardwareMap.getNamesOf(device);
@@ -56,7 +57,6 @@ public abstract class DeviceRegistrator {
 
         DeviceMonitor<?> monitor = null;
 
-        // assign the monitor with a corresponding device
         if (device instanceof DcMotorSimple) {
             monitor = new DcMotorMonitor(name, (DcMotorSimple) device);
         } else if (device instanceof Servo){
@@ -70,32 +70,36 @@ public abstract class DeviceRegistrator {
         }else if (device instanceof TouchSensor){
             monitor = new TouchSensorMonitor(name, (TouchSensor) device);
         }
-
         else{
-            monitor = registerCustomDevices(device); // if i didn't make a monitor for this device, register the user's custom device here
+            monitor = registerCustomDevices(device);
         }
 
         if (monitor != null) {
             faultManager.register(monitor);
             faultManager.getLoggingStream().log(LoggingStream.LogLevel.INFO,"Registered Device with the name of {"+name+"}, with monitor type: "+monitor.getDeviceType());
         }
-
     }
 
     /**
-     * Register a custom device to be monitored. eg : <pre>{@code if (device instanceOf DcMotorSimple){return new DcMotorMonitor(name, (DcMotorSimple) device);}}</pre> Where DcMotorSimple is the device type class that you want to monitor. And DcMotorMonitor is your custom Monitor class that <pre>{@code extends DeviceMonitor<ClassType>}</pre> Consider making a pull request if you wrote one for a new sensor/device.
-     * @see HardwareDevice
-     * @see DeviceMonitor
-     * @see DeviceRegistrator#registerDevice(HardwareDevice)
-     * @param device The device to be registered.
-     * @return The device monitor for the device. that extends <pre>{@code DeviceMonitor<ClassType>}</pre>
+     * Override this method to register custom device types.
+     *
+     * Example:
+     * ```java
+     * if (device instanceof MyCustomSensor) {
+     *     return new MyCustomSensorMonitor(name, (MyCustomSensor) device);
+     * }
+     * return null;
+     * ```
+     *
+     * @param device The hardware device to create a monitor for
+     * @return A device monitor, or null if unsupported
      */
     public abstract DeviceMonitor<?> registerCustomDevices(HardwareDevice device);
 
     /**
-     * Register all devices of a certain type to be monitored.
-     * @see HardwareDevice
-     * @param deviceClass The device type to be registered.
+     * Registers all devices of a specific type.
+     *
+     * @param deviceClass The device class to register
      */
     public <T extends HardwareDevice> void registerAllDevicesOfType(Class<T> deviceClass) {
         for (T device : hardwareMap.getAll(deviceClass)) {
@@ -104,9 +108,9 @@ public abstract class DeviceRegistrator {
     }
 
     /**
-     * Register all DcMotor devices to be monitored.
-     * @see HardwareDevice
-     * @param motorClass The device type to be registered.
+     * Registers all motor devices of a specific type.
+     *
+     * @param motorClass The motor class to register
      */
     public <T extends DcMotorSimple> void registerAllMotorsOfType(Class<T> motorClass) {
         for (T motor : hardwareMap.getAll(motorClass)) {
@@ -115,21 +119,14 @@ public abstract class DeviceRegistrator {
     }
 
     /**
-     * Register all devices to be monitored.
+     * Registers all supported devices from the hardware map.
      */
     public void registerAllDevices(){
-
-        // register DcMotorSimple devices (DcMotor, DcMotorEx, CRServo, CRServoImpl, CRServoImplEx)
         registerAllDevicesOfType(DcMotorEx.class);
         registerAllDevicesOfType(DcMotor.class);
         registerAllDevicesOfType(CRServo.class);
         registerAllMotorsOfType(CRServoImpl.class);
         registerAllMotorsOfType(CRServoImplEx.class);
-
-        // all other devices extend HardwareDevice
-        registerAllDevicesOfType(HardwareDevice.class); // all hardware devices
+        registerAllDevicesOfType(HardwareDevice.class);
     }
-
 }
-
-

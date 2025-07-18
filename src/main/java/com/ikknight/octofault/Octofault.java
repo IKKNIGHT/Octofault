@@ -11,8 +11,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /**
- * Class for managing device faults.
- * Main paradigm for octofault, please call constructors after all devices are registered on a hardwaremap.
+ * Main class for hardware fault detection and monitoring.
+ *
+ * Initialize after all devices are registered on the HardwareMap.
+ * Call {@link #update()} regularly in your main loop to monitor device health.
  */
 public class Octofault {
     HardwareMap hardwareMap;
@@ -21,24 +23,21 @@ public class Octofault {
     DeviceRegistrator registrator;
 
     /**
-     * Constructor for Octofault class.
-     * @see DeviceRegistrator
-     * @see FaultManager
-     * @see LoggingStream
-     * @param hardwareMap The hardware map of the robot.
-     * @param telemetry The telemetry to log to.
+     * Creates Octofault with telemetry logging.
+     *
+     * @param hardwareMap Robot's hardware map with all devices
+     * @param telemetry Telemetry instance for logging
      */
     public Octofault(HardwareMap hardwareMap, Telemetry telemetry) {
         this.hardwareMap = hardwareMap;
         this.loggingStream = new TelemetryLoggingStream(telemetry);
 
         this.faultManager = new FaultManager();
-        this.faultManager.setLoggingStream(loggingStream); // You'll need to make this public or expose a method
+        this.faultManager.setLoggingStream(loggingStream);
 
         registrator = new DeviceRegistrator(hardwareMap, faultManager) {
             @Override
             public DeviceMonitor<?> registerCustomDevices(HardwareDevice device) {
-                // Register custom devices here
                 return null;
             }
         };
@@ -46,12 +45,10 @@ public class Octofault {
     }
 
     /**
-     * Constructor for Octofault class.
-     * @see DeviceRegistrator
-     * @see FaultManager
-     * @see LoggingStream
-     * @param hardwareMap The hardware map of the robot.
-     * @param loggingStream The logging stream to log to.
+     * Creates Octofault with custom logging stream.
+     *
+     * @param hardwareMap Robot's hardware map with all devices
+     * @param loggingStream Custom logging implementation
      */
     public Octofault(HardwareMap hardwareMap, LoggingStream loggingStream) {
         this.hardwareMap = hardwareMap;
@@ -61,7 +58,6 @@ public class Octofault {
         registrator = new DeviceRegistrator(hardwareMap, faultManager) {
             @Override
             public DeviceMonitor<?> registerCustomDevices(HardwareDevice device) {
-                // Register custom devices here
                 return null;
             }
         };
@@ -69,13 +65,12 @@ public class Octofault {
     }
 
     /**
-     * Constructor for Octofault class. Remember to set your fault managers' logging stream.
-     * @see FaultManager#setLoggingStream(LoggingStream)
-     * @see FaultManager
-     * @see DeviceRegistrator
-     * @see LoggingStream
-     * @param hardwareMap The hardware map of the robot.
-     * @param faultManager The fault manager to use.
+     * Creates Octofault with custom fault manager.
+     *
+     * Remember to configure the fault manager's logging stream.
+     *
+     * @param hardwareMap Robot's hardware map with all devices
+     * @param faultManager Pre-configured fault manager
      */
     public Octofault(HardwareMap hardwareMap, FaultManager faultManager) {
         this.hardwareMap = hardwareMap;
@@ -83,7 +78,6 @@ public class Octofault {
         registrator = new DeviceRegistrator(hardwareMap, faultManager) {
             @Override
             public DeviceMonitor<?> registerCustomDevices(HardwareDevice device) {
-                // Register custom devices here
                 return null;
             }
         };
@@ -91,26 +85,29 @@ public class Octofault {
     }
 
     /**
-     * Constructor for Octofault class. Be sure to initialise your deviceRegistrator before/after calling the constructor
-     * @see DeviceRegistrator
-     * @param hardwareMap The hardware map of the robot.
-     * @param telemetry The telemetry for octofault to log to.
-     * @param registrator The device registrator to use.
+     * Creates Octofault with custom device registrator and telemetry.
+     *
+     * Initialize the device registrator before or after calling this constructor.
+     *
+     * @param hardwareMap Robot's hardware map with all devices
+     * @param telemetry Telemetry instance for logging
+     * @param registrator Custom device registrator
      */
     public Octofault(HardwareMap hardwareMap, Telemetry telemetry, DeviceRegistrator registrator){
         this.hardwareMap = hardwareMap;
         this.loggingStream = new TelemetryLoggingStream(telemetry);
 
         this.faultManager = new FaultManager();
-        this.faultManager.setLoggingStream(loggingStream); // You'll need to make this public or expose a method
-        this.registrator = registrator; // assuming the user wants to register his own devices
+        this.faultManager.setLoggingStream(loggingStream);
+        this.registrator = registrator;
     }
 
     /**
-     * Constructor for Octofault class. Be sure to initialise your deviceRegistrator before/after calling the constructor.
-     * @param hardwareMap The hardware map of the robot.
-     * @param loggingStream The logging stream to log to.
-     * @param registrator The device registrator to use.
+     * Creates Octofault with custom device registrator and logging stream.
+     *
+     * @param hardwareMap Robot's hardware map with all devices
+     * @param loggingStream Custom logging implementation
+     * @param registrator Custom device registrator
      */
     public Octofault(HardwareMap hardwareMap, LoggingStream loggingStream, DeviceRegistrator registrator){
         this.hardwareMap = hardwareMap;
@@ -122,10 +119,13 @@ public class Octofault {
     }
 
     /**
-     * Constructor for Octofault class. Be sure to initialise your deviceRegistrator before/after calling the constructor.Be sure to set your fault managers' logging stream.
-     * @param hardwareMap The hardware map of the robot.
-     * @param faultManager The fault manager to use.
-     * @param registrator The device registrator to use.
+     * Creates Octofault with custom fault manager and device registrator.
+     *
+     * Configure the fault manager's logging stream before use.
+     *
+     * @param hardwareMap Robot's hardware map with all devices
+     * @param faultManager Pre-configured fault manager
+     * @param registrator Custom device registrator
      */
     public Octofault(HardwareMap hardwareMap, FaultManager faultManager, DeviceRegistrator registrator){
         this.hardwareMap = hardwareMap;
@@ -134,29 +134,31 @@ public class Octofault {
     }
 
     /**
-     * Must be called regularly (e.g. inside loop()) to update all monitors.
+     * Updates all device monitors and checks for faults.
+     *
+     * Call this method regularly in your main loop (e.g., inside OpMode's loop()).
      */
     public void update() {
-        // get time
         long startTime = System.currentTimeMillis();
         faultManager.updateAll();
         faultManager.getLoggingStream().log(LoggingStream.LogLevel.INFO, "FaultManager took " + (System.currentTimeMillis() - startTime) + "ms to update (Tick Complete)");
     }
 
     /**
-     * Get the fault manager.
-     * @return The fault manager.
+     * Gets the fault manager instance.
+     *
+     * @return The fault manager
      */
     public FaultManager getFaultManager(){
         return faultManager;
     }
 
     /**
-     * Get the device registrator
+     * Gets the device registrator instance.
+     *
      * @return The device registrator
      */
     public DeviceRegistrator getDeviceRegistrator(){
         return registrator;
     }
-    
 }

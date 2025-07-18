@@ -6,14 +6,20 @@ import com.ikknight.octofault.utils.LoggingStream;
 import com.qualcomm.robotcore.hardware.*;
 
 /**
- * Monitor class for all devices that extend to DcMotorSimple. Being
- * <li>DcMotor</li>
- * <li>DcMotorEx</li>
- * <li>CRServo</li>
- * <li>CRServoImpl</li>
- * <li>CRServoImplEx</li>
+ * Monitors DC motors and continuous rotation servos for stalls and performance issues.
  *
- * @see DeviceMonitor
+ * Supported devices:
+ * - DcMotor
+ * - DcMotorEx
+ * - CRServo
+ * - CRServoImpl
+ * - CRServoImplEx
+ *
+ * Checks for:
+ * - Motor stalls (encoder not moving under power)
+ * - Low velocity under power
+ * - PWM status for advanced servos
+ * - NaN power values
  */
 public class DcMotorMonitor extends DeviceMonitor<DcMotorSimple> {
 

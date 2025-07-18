@@ -6,33 +6,28 @@ import com.ikknight.octofault.utils.LoggingStream;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 /**
- * Monitor class for all devices that implement {@link TouchSensor}, including:
- * <li>TouchSensor</li>
+ * Monitors touch sensors for invalid readings and hardware faults.
  *
- * This monitor checks for:
- * <ul>
- *     <li>Unexpected NaN or negative values from {@code getValue()}</li>
- *     <li>Unusual pressure readings outside of expected [0.0–1.0]</li>
- * </ul>
+ * Supported devices:
+ * - TouchSensor
  *
- * @see DeviceMonitor
+ * Checks for:
+ * - NaN or negative values
+ * - Readings outside expected range [0.0–1.0]
+ * - Communication errors
  */
 public class TouchSensorMonitor extends DeviceMonitor<TouchSensor> {
 
     /**
-     * Constructor for DeviceMonitor class.
+     * Creates a touch sensor monitor.
      *
-     * @param name   The name of the device being monitored.
-     * @param device The device being monitored.
+     * @param name Device name from hardware map
+     * @param device Touch sensor instance
      */
     public TouchSensorMonitor(String name, TouchSensor device) {
         super(name, device);
     }
 
-    /**
-     * Checks if the sensor is returning valid values.
-     * Touch sensors are simple but still can return invalid or erratic signals if damaged or miswired.
-     */
     @Override
     public void update() {
         boolean errorsInThisUpdate = false;

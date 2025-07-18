@@ -9,20 +9,25 @@ import com.qualcomm.robotcore.hardware.ServoImpl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 /**
- * Monitor class for all devices that extend to Servo. Being
- * <li>Servo</li>
- * <li>ServoImpl</li>
- * <li>ServoImplEx</li>
- * @see DeviceMonitor
+ * Monitors servo motors for position and PWM issues.
+ *
+ * Supported devices:
+ * - Servo
+ * - ServoImpl
+ * - ServoImplEx
+ *
+ * Checks for:
+ * - Position values outside [0.0–1.0] range
+ * - PWM status
+ * - Communication errors
  */
 public class ServoMonitor extends DeviceMonitor<Servo> {
 
-
     /**
-     * Constructor for DeviceMonitor class.
+     * Creates a servo monitor.
      *
-     * @param name   The name of the device being monitored.
-     * @param device The device being monitored.
+     * @param name Device name from hardware map
+     * @param device Servo instance
      */
     public ServoMonitor(String name, Servo device) {
         super(name, device);
@@ -30,14 +35,13 @@ public class ServoMonitor extends DeviceMonitor<Servo> {
 
     @Override
     public void update() {
-        // there isn't much to check for servos since there is no electrical way to check them.
-
         boolean errorsInThisUpdate = false;
-        // check getPosition() sanity (0.0–1.0), isPwmEnabled() (for ServoImplEx), etc.
+
         if (device.getPosition() < 0.0 || device.getPosition() > 1.0 || Double.isNaN(device.getPosition())) {
             reportFault(LoggingStream.LogLevel.ERROR, name + ": Position out of range (0.0–1.0), Or Servo position is unknown. (either undefined or the servo position is not set.)");
             errorsInThisUpdate = true;
         }
+
         if (device instanceof ServoImplEx) {
             ServoImplEx advancedServo = (ServoImplEx) device;
             try {

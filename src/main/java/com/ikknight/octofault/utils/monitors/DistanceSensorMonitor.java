@@ -7,16 +7,24 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 /**
- * Monitor class for all devices that extend to DistanceSensor. Being
- * <li>DistanceSensor</li>
- * <li>Rev2mDistanceSensor</li>
+ * Monitors distance sensors for invalid readings and communication issues.
+ *
+ * Supported devices:
+ * - DistanceSensor
+ * - Rev2mDistanceSensor
+ *
+ * Checks for:
+ * - NaN or negative distance values
+ * - Readings outside reasonable range (0–1000cm)
+ * - Communication errors
  */
 public class DistanceSensorMonitor extends DeviceMonitor<DistanceSensor>{
+
     /**
-     * Constructor for DeviceMonitor class.
+     * Creates a distance sensor monitor.
      *
-     * @param name   The name of the device being monitored.
-     * @param device The device being monitored.
+     * @param name Device name from hardware map
+     * @param device Distance sensor instance
      */
     public DistanceSensorMonitor(String name, DistanceSensor device) {
         super(name, device);
