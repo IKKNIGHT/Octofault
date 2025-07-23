@@ -8,6 +8,7 @@ import com.ikknight.octofault.utils.monitors.DistanceSensorMonitor;
 import com.ikknight.octofault.utils.monitors.IMUMonitor;
 import com.ikknight.octofault.utils.monitors.ServoMonitor;
 import com.ikknight.octofault.utils.monitors.TouchSensorMonitor;
+import com.ikknight.octofault.utils.monitors.VoltageSensorMonitor;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.CRServoImpl;
 import com.qualcomm.robotcore.hardware.CRServoImplEx;
@@ -21,6 +22,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import java.util.Set;
 
@@ -67,6 +69,8 @@ public abstract class DeviceRegistrator {
             monitor = new ColorSensorMonitor(name, (ColorSensor) device);
         }else if (device instanceof TouchSensor){
             monitor = new TouchSensorMonitor(name, (TouchSensor) device);
+        }else if (device instanceof VoltageSensor){
+            monitor = new VoltageSensorMonitor(name, (VoltageSensor) device);
         }
         else{
             monitor = registerCustomDevices(device);
