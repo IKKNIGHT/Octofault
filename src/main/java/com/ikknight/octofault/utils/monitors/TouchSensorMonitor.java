@@ -6,13 +6,7 @@ import com.ikknight.octofault.utils.LoggingStream;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 /**
- * Monitors touch sensors for invalid readings and hardware faults.
- * Supported devices:
- * - TouchSensor
- * Checks for:
- * - NaN or negative values
- * - Readings outside expected range [0.0–1.0]
- * - Communication errors
+ * Monitors touch sensors for invalid readings and hardware faults. Supported devices: - TouchSensor Checks for: - NaN or negative values - Readings outside expected range [0.0–1.0] - Communication errors
  */
 public class TouchSensorMonitor extends DeviceMonitor<TouchSensor> {
 

@@ -9,13 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 /**
- * Monitors IMU sensors for orientation and angular velocity issues.
- * Supported devices:
- * - IMU (universal interface for BNO055, BHI260AP, etc.)
- * Checks for:
- * - NaN orientation values (yaw/pitch/roll)
- * - Null angular velocity data
- * - Communication errors
+ * Monitors IMU sensors for orientation and angular velocity issues. Supported devices: - IMU (universal interface for BNO055, BHI260AP, etc.) Checks for: - NaN orientation values (yaw/pitch/roll) - Null angular velocity data - Communication errors
  */
 public class IMUMonitor extends DeviceMonitor<IMU> {
 

@@ -11,9 +11,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /**
- * Main class for hardware fault detection and monitoring.
- * Initialize after all devices are registered on the HardwareMap.
- * Call {@link #update()} regularly in your main loop to monitor device health.
+ * Main class for hardware fault detection and monitoring. Initialize after all devices are registered on the HardwareMap. Call {@link #update()} regularly in your main loop to monitor device health.
  */
 public class Octofault {
     HardwareMap hardwareMap;
@@ -64,8 +62,7 @@ public class Octofault {
     }
 
     /**
-     * Creates Octofault with custom fault manager.
-     * Remember to configure the fault manager's logging stream.
+     * Creates Octofault with custom fault manager. Remember to configure the fault manager's logging stream.
      *
      * @param hardwareMap Robot's hardware map with all devices
      * @param faultManager Pre-configured fault manager
@@ -83,8 +80,7 @@ public class Octofault {
     }
 
     /**
-     * Creates Octofault with custom device registrator and telemetry.
-     * Initialize the device registrator before or after calling this constructor.
+     * Creates Octofault with custom device registrator and telemetry. Initialize the device registrator before or after calling this constructor.
      *
      * @param hardwareMap Robot's hardware map with all devices
      * @param telemetry Telemetry instance for logging
@@ -116,8 +112,7 @@ public class Octofault {
     }
 
     /**
-     * Creates Octofault with custom fault manager and device registrator.
-     * Configure the fault manager's logging stream before use.
+     * Creates Octofault with custom fault manager and device registrator. Configure the fault manager's logging stream before use.
      *
      * @param hardwareMap Robot's hardware map with all devices
      * @param faultManager Pre-configured fault manager
@@ -130,8 +125,7 @@ public class Octofault {
     }
 
     /**
-     * Updates all device monitors and checks for faults.
-     * Call this method regularly in your main loop (e.g., inside OpMode's loop()).
+     * Updates all device monitors and checks for faults. Call this method regularly in your main loop (e.g., inside OpMode's loop()).
      */
     public void update() {
         long startTime = System.currentTimeMillis();
